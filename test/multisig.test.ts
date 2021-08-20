@@ -111,8 +111,7 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: ethReceiverAddress,
         value: ethers.utils.parseEther('5').toString(),
-        data: '0x',
-        nonce: '1'
+        data: '0x'
       }
 
       // @ts-expect-error

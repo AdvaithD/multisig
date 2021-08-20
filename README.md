@@ -23,7 +23,6 @@ const main = async () => {
         to: '0x...', // destination address
         value: '', // ethereum value
         data: '0x...', // calldata
-        nonce: '1', // nonce
     }
     
     // retrieve ethers signer
@@ -81,7 +80,7 @@ Should return test out for: Signing Logic, Access / Control, and Execution.
 EIP712 is a standard to create and verify signatures on the Ethereum blockchain.
 
 - **Domain seperator:** Used to make sure signatures are unique, and specific to a dApp. The domain for this multisig wallet is located in `./util/signing-util.ts` in `TYPES['EIP712Domain']`. It defines the `name, version, chainId and verifyingContract`.
-- **Data Structure:** For the multisig wallet, we use `TxnRequest` as the primary data type while signing transactions. It includes the fields `to, value, data, nonce`.
+- **Data Structure:** For the multisig wallet, we use `TxnRequest` as the primary data type while signing transactions. It includes the fields `to, value, data`.
 
 ### How are messages signed?
 
