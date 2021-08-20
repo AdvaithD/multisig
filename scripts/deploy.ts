@@ -1,9 +1,9 @@
-import hardhat from 'hardhat'
-import type { MinimalMultisig } from '../types'
+import { Contract, ContractFactory } from 'ethers'
+import { ethers } from 'hardhat'
 
-async function main () {
-  const multisigFactory = await hardhat.ethers.getContractFactory('MinimalMultisig')
-  const MultisigWallet: MinimalMultisig = await multisigFactory.deploy()
+async function main (): Promise<void> {
+  const multisigFactory: ContractFactory = await ethers.getContractFactory('MinimalMultisig')
+  const MultisigWallet: Contract = await multisigFactory.deploy()
 
   await MultisigWallet.deployed()
 

@@ -2,8 +2,6 @@
 
 Simple multi-sig smart contract wallet implemented using off-chain signatures. The signature scheme is based on [EIP712](https://eips.ethereum.org/EIPS/eip-712)
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
 **Note:** This is a very basic implementation, as opposed to [Gnosis Safe](https://gnosis-safe.io/), which should be used for more serious production use cases.
 
 ## Installation
@@ -91,7 +89,7 @@ EIP712 is a standard to create and verify signatures on the Ethereum blockchain.
 - Using the signer's provider, we retrieve `chainId` and call `eth_signTypedData_v4` over RPC. The data passed to the RPC looks like:
 
 ```
-[signerAddress, EIP712_Schame]
+[signerAddress, EIP712_Schema]
 
 # EIP712 Schema
 {
