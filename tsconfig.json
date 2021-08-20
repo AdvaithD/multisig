@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "es2018",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "strict": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "outDir": "dist"
+    },
+    "include": ["./scripts", "./test", "./util/signing-util.ts"],
+    "files": ["./hardhat.config.ts"]
+}
