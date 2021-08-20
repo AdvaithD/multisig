@@ -45,6 +45,13 @@ main()
 
 ## Tests
 
+- The test suite heavily utilizes functions exported from `./util/signing-util` which is used to sign messages off-chain.
+- On initialization, a contract `owner` is set. Owners have the ability to change signing threshold, and add additional signers.
+- `executeTransaction()` can be called by any signer, given they have the necessary number of signatures.
+- `signMessage()` and `signMessages()` can be used for off chain signatures.
+
+> **Note:** The RPC must support `eth_signTypedData_v4` in order to create a compliant signature
+
 ```bash
 yarn test
 ```
@@ -71,7 +78,14 @@ Should return test out for: Signing Logic, Access / Control, and Execution.
   11 passing (2s)
 ```
 
-- The test suite heavily utilizes functions exported from `./util/signing-util` which is used to sign messages off-chain.
+## EIP712
+
+EIP712 is a standard to create and verify signatures on the Ethereum blockchain.
+
+- **Domain seperator:** Used to make sure signatures are unique, and specific to a dApp. The domain for this multisig wallet is located in `./util/signing-util.ts` in `TYPES['EIP712Domain']`. It defines the `name, version, chainId and verifyingContract`.
+- **Data Structure:** For the multisig wallet, we use `TxnRequest` as the primary data type while signing transactions. It includes the fields `to, value, data, nonce`.
+
+
 
 ## Licence
 [MIT](https://choosealicense.com/licenses/mit/)

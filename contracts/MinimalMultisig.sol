@@ -10,6 +10,7 @@ contract MinimalMultisig is EIP712 {
     event NewSigner(address signer, uint256 threshold);
     event Execution(address destination, bool success,bytes returndata);
 
+    // Multisig transaction payload
     struct TxnRequest {
         address to;
         uint256 value;
@@ -17,6 +18,7 @@ contract MinimalMultisig is EIP712 {
         uint256 nonce;
     }
 
+    // Variables
     address public owner;
     address[] public signers;
     mapping(address => bool) isSigner;
@@ -33,6 +35,8 @@ contract MinimalMultisig is EIP712 {
     receive() external payable {}
 
     // @dev - returns hash of data to be signed
+    // @param params - struct containing transaction data
+    // @return - packed hash that is to be signed
     function typedDataHash(TxnRequest memory params) public view returns (bytes32) {
         bytes32 digest = _hashTypedDataV4(
             keccak256(
@@ -48,6 +52,11 @@ contract MinimalMultisig is EIP712 {
         return digest;
     }
 
+    // @dev - util function to recover a signer given a signatures
+    // @param _to - to address of the transaction
+    // @param _value - transaction value
+    // @param _data - transaction calldata
+    // @param _nonce - multisig nonce
     function recoverSigner(address _to, uint256 _value, bytes memory _data, uint256 _nonce, bytes memory userSignature) public view returns (address) {
         TxnRequest memory params = TxnRequest({
             to: _to,
@@ -73,6 +82,12 @@ contract MinimalMultisig is EIP712 {
         emit NewSigner(_signer, _threshold);
     }
 
+    // @dev - Execute a multisig transaction given an array of signatures, and TxnRequest params
+    // @param signatures - array of signatures from multisig holders
+    // @param _to - address a transaction should be sent to
+    // @param _value - transaction value
+    // @param _data - data to be sent with the transaction (e.g: to call a contract function)
+    // @param _nonce - nonce for the multisig
     function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data, uint256 _nonce) public onlySigner {
             // require minimum # of signatures (m-of-n)
         require(signatures.length >= threshold, "Invalid number of signatures");
