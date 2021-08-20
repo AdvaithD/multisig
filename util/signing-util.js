@@ -62,6 +62,7 @@ const EIP712 = (contractAddress, chainId = 1, params) => {
     primaryType: 'TxnRequest'
   }
 }
+
 /**
  * @param  {Signer} signer - account signer
  * @param  {string} contractAddress - multisig contract address
