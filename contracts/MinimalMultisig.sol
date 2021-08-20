@@ -76,6 +76,7 @@ contract MinimalMultisig is EIP712 {
     function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data, uint256 _nonce) public onlySigner {
             // require minimum # of signatures (m-of-n)
         require(signatures.length >= threshold, "Invalid number of signatures");
+        require(_to != address(0), "Cannot send to zero address.");
         // construct transaction
         TxnRequest memory txn = TxnRequest({
             to: _to,
@@ -121,4 +122,3 @@ contract MinimalMultisig is EIP712 {
         _;
     }
 } 
-
