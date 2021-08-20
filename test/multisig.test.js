@@ -179,5 +179,28 @@ describe('Minimal Multisig', () => {
       // check if boolean was set to true via multisig txn
       expect(await Test.value()).to.equal('storedData')
     })
+
+    it('should revert on invalid # of signatures', async () => {
+      // construct transaction params
+      // send 5 ETH to the ethReceiver (an ethers signer)
+      const params = {
+        to: await ethReceiver.getAddress(),
+        value: ethers.utils.parseEther('5').toString(),
+        data: '0x',
+        nonce: '1'
+      }
+
+      // create only two signatures from the first two signers
+      const signatures = await signMessages([first, second], Multisig.address, params)
+
+      // create 3-of-3 multisig
+      await Multisig.connect(first).addAdditionalOwners(await second.getAddress(), 1)
+      await Multisig.connect(first).addAdditionalOwners(await third.getAddress(), 2)
+      await Multisig.connect(first).addAdditionalOwners(await fourth.getAddress(), 3)
+
+      // submit only two signatures
+      await expect(Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+        .to.be.revertedWith('Invalid number of signatures')
+    })
   })
 })
