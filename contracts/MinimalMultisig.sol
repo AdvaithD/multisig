@@ -8,6 +8,7 @@ contract MinimalMultisig is EIP712 {
     using ECDSA for bytes32;
 
     event NewSigner(address signer, uint256 threshold);
+    event Execution(address destination, bool success,bytes returndata);
 
     struct TxnRequest {
         address to;
@@ -70,6 +71,34 @@ contract MinimalMultisig is EIP712 {
         isSigner[_signer] = true;
 
         emit NewSigner(_signer, _threshold);
+    }
+
+    function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data, uint256 _nonce) public onlySigner {
+            // require minimum # of signatures (m-of-n)
+        require(signatures.length >= threshold, "Invalid number of signatures");
+        // construct transaction
+        TxnRequest memory txn = TxnRequest({
+            to: _to,
+            value: _value,
+            data: _data,
+            nonce: _nonce
+        });
+        // create typed hash
+        bytes32 digest = typedDataHash(txn);
+        // get the signer of the message
+        for (uint i = 0; i < threshold; i ++) {
+            // recover signer address
+            address signer = ECDSA.recover(digest, signatures[i]);
+            // verify that signer is owner (any signer can execute the transaction given a set of off-chain signatures)
+            require(isSigner[signer], "Invalid signer");
+        }
+
+        // increment nonce by 1
+        nonce += 1;
+        // execute transaction
+        (bool success, bytes memory returndata) = txn.to.call{value: txn.value}(_data);
+        require(success, "Failed transaction");
+        emit Execution(txn.to, success, returndata);
     }
 
     function getOwnerCount() public view returns (uint256) {
