@@ -3,8 +3,9 @@ pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MinimalMultisig is EIP712 {
+contract MinimalMultisig is EIP712, ReentrancyGuard {
     using ECDSA for bytes32;
 
     event NewSigner(address signer, uint256 threshold);
@@ -66,7 +67,7 @@ contract MinimalMultisig is EIP712 {
     // @dev - addAdditionalOwners adds additional owners to the multisig
     // @param _signer - address to be added to the signers list
     // @param _threshold - new signature threshold (inclusive of new signer)
-    function addAdditionalOwners(address _signer, uint _threshold) public onlyOwner {
+    function addAdditionalOwners(address _signer, uint _threshold) external onlyOwner {
         require(!isSigner[_signer], "Address is already a signer.");
         require(_threshold <= signers.length + 1, "Threshold cannot exceed number of signers.");
         require(_threshold >= 1, "Threshold cannot be < 1.");
@@ -82,8 +83,8 @@ contract MinimalMultisig is EIP712 {
     // @param _to - address a transaction should be sent to
     // @param _value - transaction value
     // @param _data - data to be sent with the transaction (e.g: to call a contract function)
-    function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data) public onlySigner {
-            // require minimum # of signatures (m-of-n)
+    function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data) external onlySigner nonReentrant {
+        // require minimum # of signatures (m-of-n)
         require(signatures.length >= threshold, "Invalid number of signatures");
         require(_to != address(0), "Cannot send to zero address.");
         // construct transaction
@@ -114,7 +115,7 @@ contract MinimalMultisig is EIP712 {
 
     modifier onlySigner() {
         require(
-            isSigner[msg.sender] == true,
+            isSigner[msg.sender],
             "Unauthorized signer."
         );
         _;
