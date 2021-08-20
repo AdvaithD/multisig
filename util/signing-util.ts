@@ -1,4 +1,4 @@
-const { ethers } = require('ethers')
+import { ethers } from 'ethers'
 
 const TYPES = {
   EIP712Domain: [
@@ -37,10 +37,9 @@ const TYPES = {
       type: 'uint256'
     }
   ]
-
 }
 
-const getDomain = (chainId, contractAddress) => {
+const getDomain = (chainId: number, contractAddress: string) => {
   return {
     name: 'MinimalMultisig',
     version: '1.0.0',
@@ -49,7 +48,7 @@ const getDomain = (chainId, contractAddress) => {
   }
 }
 
-const EIP712 = (contractAddress, chainId = 1, params) => {
+const EIP712 = (contractAddress: string, chainId = 1, params: Record<any, unknown>) => {
   return {
     types: TYPES,
     domain: getDomain(chainId, contractAddress),
@@ -68,8 +67,9 @@ const EIP712 = (contractAddress, chainId = 1, params) => {
  * @param  {string} contractAddress - multisig contract address
  * @param  {Object} params - unsigned transaction payload of type TxnRequest
  */
-const signMessage = async (signer, contractAddress, params) => {
-  const { provider } = signer
+export const signMessage = async (signer: ethers.Signer, contractAddress: string, params: Record<any, unknown>): Promise<string> => {
+  // @ts-expect-error
+  const provider: ethers.providers.JsonRpcProvider = signer.provider
   const { chainId } = await provider.getNetwork()
 
   try {
@@ -78,16 +78,16 @@ const signMessage = async (signer, contractAddress, params) => {
       EIP712(contractAddress, chainId, params)
     ])
   } catch (e) {
-    throw new Error('Error signing transaction: eth_signTypedData_v4', e)
+    throw new Error(e)
   }
 }
 
-const signMessages = async (signers, contractAddress, params) => {
+export const signMessages = async (signers: ethers.Signer[], contractAddress: string, params: Record<any, unknown>): Promise<string[]> => {
   if (signers.length === 0) {
     throw new Error('Please supply an array of signers')
   }
 
-  const signatures = []
+  const signatures: string[] = []
 
   signers.map(async (signer) => {
     const signature = await signMessage(signer, contractAddress, params)
@@ -97,12 +97,6 @@ const signMessages = async (signers, contractAddress, params) => {
   return signatures
 }
 
-const getEthBalance = async (provider, address) => {
+export const getEthBalance = async (provider: ethers.providers.JsonRpcProvider, address: string) => {
   return await provider.getBalance(address)
-}
-
-module.exports = {
-  signMessage,
-  signMessages,
-  getEthBalance
 }
