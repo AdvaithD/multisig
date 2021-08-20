@@ -8,10 +8,11 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
 
 ## Installation
 
-Assuming a standard NodeJS environment, install dependencies.
+Assuming a standard NodeJS environment, install dependencies, followed by compiling contracts (generates typescript bindings).
 
 ```bash
 yarn install
+yarn compile
 ```
 ## Usage
 
@@ -43,6 +44,32 @@ main()
 ```
 
 ## Tests
+
+```bash
+yarn test
+```
+Should return test out for: Signing Logic, Access / Control, and Execution.
+
+```
+  EIP712 Multisig Wallet
+    Signing Logic
+      ✓ should recover off-chain signer's message (42ms)
+    Access / Control
+      ✓ should add a second signer to create a 1-of-2 multisig
+      ✓ should create 2-of-3 multisig (62ms)
+      ✓ should revert when m > n (59ms)
+      ✓ should revert when non-owner calls addAdditionalOwners()
+      ✓ should revert when adding an already existing signer (46ms)
+    Execution
+      ✓ should send ETH from 1-of-3 multisig (92ms)
+      ✓ should call function selector from a 2-of-3 multisig (65ms)
+      ✓ should call function selector from a 2-of-3 multisig with arguments (72ms)
+      ✓ should revert on invalid # of signatures (53ms)
+      ✓ should revert when to == zeroAddress
+
+
+  11 passing (2s)
+```
 
 - The test suite heavily utilizes functions exported from `./util/signing-util` which is used to sign messages off-chain.
 
