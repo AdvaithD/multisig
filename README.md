@@ -85,6 +85,26 @@ EIP712 is a standard to create and verify signatures on the Ethereum blockchain.
 - **Domain seperator:** Used to make sure signatures are unique, and specific to a dApp. The domain for this multisig wallet is located in `./util/signing-util.ts` in `TYPES['EIP712Domain']`. It defines the `name, version, chainId and verifyingContract`.
 - **Data Structure:** For the multisig wallet, we use `TxnRequest` as the primary data type while signing transactions. It includes the fields `to, value, data, nonce`.
 
+### How are messages signed?
+
+- A signer calls `signMessage()` passing in a signer, contract address and an object containing transaction parameters.
+- Using the signer's provider, we retrieve `chainId` and call `eth_signTypedData_v4` over RPC. The data passed to the RPC looks like:
+
+```
+[signerAddress, EIP712_Schame]
+
+# EIP712 Schema
+{
+  types: '', // object containing types for EIP712Domain and TxnRequest
+  domain: '', // domain of the contract (i.e: name, version, chainId, verifyingContract)
+  message: txnParams // object containing transaction payload
+  primaryType: 'TxnRequest' // message primary type 
+}
+```
+
+This returns a signed message, that is compliant with EIP712.
+
+
 
 
 ## Licence

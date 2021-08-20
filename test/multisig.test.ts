@@ -118,7 +118,7 @@ describe('EIP712 Multisig Wallet', () => {
 
       // @ts-expect-error
       const beforeBalance = await getEthBalance(ethReceiver.provider, ethReceiverAddress)
-      // expect(beforeBalance / 1e18).to.equal(10000)
+      expect(beforeBalance).to.equal('10000000000000000000000') // 10k ETH
 
       const signatures = await signMessages([first, second, third], Multisig.address, params)
 
@@ -131,6 +131,10 @@ describe('EIP712 Multisig Wallet', () => {
       await expect(await Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
         .to.emit(Multisig, 'Execution')
         .withArgs(ethReceiverAddress, true, '0x')
+
+      // @ts-expect-error
+      const afterBalance = await getEthBalance(ethReceiver.provider, ethReceiverAddress)
+      expect(afterBalance).to.equal('10005000000000000000000') // 10k + 5 ETH
     })
 
     it('should call function selector from a 2-of-3 multisig', async () => {
