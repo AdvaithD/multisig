@@ -26,6 +26,7 @@
   },
   "scripts": {
     "compile": "rm -rf /cache /artifacts /types && npx hardhat compile",
-    "test": "npx hardhat test test/multisig.test.ts"
+    "test": "npx hardhat test test/multisig.test.ts",
+    "deploy": "ts-node scripts/deploy.ts"
   }
 }

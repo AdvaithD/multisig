@@ -9,6 +9,6 @@
       "resolveJsonModule": true,
       "outDir": "dist"
     },
-    "include": ["./scripts", "./test", "./util/signing-util.ts"],
+    "include": ["./scripts", "./test", "./scripts/*", "./util/signing-util.ts"],
     "files": ["./hardhat.config.ts"]
 }
