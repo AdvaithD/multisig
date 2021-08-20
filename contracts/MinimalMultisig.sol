@@ -54,7 +54,7 @@ contract MinimalMultisig is EIP712, ReentrancyGuard {
     // @param _to - to address of the transaction
     // @param _value - transaction value
     // @param _data - transaction calldata
-    function recoverSigner(address _to, uint256 _value, bytes memory _data, bytes memory userSignature) public view returns (address) {
+    function recoverSigner(address _to, uint256 _value, bytes memory _data, bytes memory userSignature) external view returns (address) {
         TxnRequest memory params = TxnRequest({
             to: _to,
             value: _value,
@@ -109,7 +109,7 @@ contract MinimalMultisig is EIP712, ReentrancyGuard {
         emit Execution(txn.to, success, returndata);
     }
 
-    function getOwnerCount() public view returns (uint256) {
+    function getOwnerCount() external view returns (uint256) {
         return signers.length;
     }
 
