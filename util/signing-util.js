@@ -82,6 +82,27 @@ const signMessage = async (signer, contractAddress, params) => {
   }
 }
 
+const signMessages = async (signers, contractAddress, params) => {
+  if (signers.length === 0) {
+    throw new Error('Please supply an array of signers')
+  }
+
+  const signatures = []
+
+  signers.map(async (signer) => {
+    const signature = await signMessage(signer, contractAddress, params)
+    signatures.push(signature)
+  })
+
+  return signatures
+}
+
+const getEthBalance = async (provider, address) => {
+  return await provider.getBalance(address)
+}
+
 module.exports = {
-  signMessage
+  signMessage,
+  signMessages,
+  getEthBalance
 }
