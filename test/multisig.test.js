@@ -37,4 +37,45 @@ describe('Minimal Multisig', () => {
       expect(recoveredSigner).to.equal(originalSigner)
     })
   })
+
+  describe('Access / Control', () => {
+    it('should add a second signer to create a 1-of-2 multisig', async () => {
+      const newSignersAddress = await second.getAddress()
+      await expect(await Multisig.connect(first).addAdditionalOwners(newSignersAddress, 1))
+        .to.emit(Multisig, 'NewSigner')
+        .withArgs(newSignersAddress, 1)
+    })
+
+    it('should create 2-of-3 multisig', async () => {
+      const [secondSigner, thirdSigner] = [await second.getAddress(), await third.getAddress()]
+      await Multisig.connect(first).addAdditionalOwners(secondSigner, 2)
+      await Multisig.connect(first).addAdditionalOwners(thirdSigner, 2)
+
+      expect(await Multisig.threshold()).to.equal(2)
+      expect(await Multisig.getOwnerCount()).to.equal(3)
+    })
+
+    it('should revert when m > n', async () => {
+      // attempt to create 3 of 2 multisig
+      await Multisig.connect(first).addAdditionalOwners(await second.getAddress(), 1) // 1 of two
+      await Multisig.connect(first).addAdditionalOwners(await third.getAddress(), 2) // two of three
+      await expect(Multisig.connect(first).addAdditionalOwners(await fourth.getAddress(), 10)).to.be.revertedWith('Threshold cannot exceed number of signers.')
+    })
+
+    it('should revert when non-owner calls addAdditionalOwners()', async () => {
+      // attempt to add signer from a non-signer account
+      await expect(Multisig.connect(second).addAdditionalOwners(await second.getAddress(), 1)).to.be.revertedWith('Unauthorized. Owner only.')
+    })
+
+    it('should revert when adding an already existing signer', async () => {
+      const duplicateAddress = await second.getAddress()
+      await expect(await Multisig.connect(first).addAdditionalOwners(duplicateAddress, 1))
+        .to.emit(Multisig, 'NewSigner')
+        .withArgs(duplicateAddress, 1)
+
+      // attempt to add signer again
+      await expect(Multisig.connect(first).addAdditionalOwners(duplicateAddress, 1))
+        .to.be.revertedWith('Address is already a signer.')
+    })
+  })
 })
