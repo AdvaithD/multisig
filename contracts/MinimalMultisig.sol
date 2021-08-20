@@ -15,14 +15,12 @@ contract MinimalMultisig is EIP712 {
         address to;
         uint256 value;
         bytes data;
-        uint256 nonce;
     }
 
     // Variables
     address public owner;
     address[] public signers;
     mapping(address => bool) isSigner;
-    uint256 public nonce;
     uint256 public threshold;
 
     constructor() EIP712("MinimalMultisig", "1.0.0") {
@@ -41,11 +39,10 @@ contract MinimalMultisig is EIP712 {
         bytes32 digest = _hashTypedDataV4(
             keccak256(
                 abi.encode(
-                    keccak256("TxnRequest(address to,uint256 value,bytes data,uint256 nonce)"),
+                    keccak256("TxnRequest(address to,uint256 value,bytes data)"),
                     params.to,
                     params.value,
-                    keccak256(params.data),
-                    params.nonce
+                    keccak256(params.data)
                 )
             )
         );
@@ -56,13 +53,11 @@ contract MinimalMultisig is EIP712 {
     // @param _to - to address of the transaction
     // @param _value - transaction value
     // @param _data - transaction calldata
-    // @param _nonce - multisig nonce
-    function recoverSigner(address _to, uint256 _value, bytes memory _data, uint256 _nonce, bytes memory userSignature) public view returns (address) {
+    function recoverSigner(address _to, uint256 _value, bytes memory _data, bytes memory userSignature) public view returns (address) {
         TxnRequest memory params = TxnRequest({
             to: _to,
             value: _value,
-            data: _data,
-            nonce: _nonce
+            data: _data
         });
         bytes32 digest = typedDataHash(params);
         return ECDSA.recover(digest, userSignature);
@@ -87,8 +82,7 @@ contract MinimalMultisig is EIP712 {
     // @param _to - address a transaction should be sent to
     // @param _value - transaction value
     // @param _data - data to be sent with the transaction (e.g: to call a contract function)
-    // @param _nonce - nonce for the multisig
-    function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data, uint256 _nonce) public onlySigner {
+    function executeTransaction(bytes[] memory signatures, address _to, uint256 _value, bytes memory _data) public onlySigner {
             // require minimum # of signatures (m-of-n)
         require(signatures.length >= threshold, "Invalid number of signatures");
         require(_to != address(0), "Cannot send to zero address.");
@@ -96,8 +90,7 @@ contract MinimalMultisig is EIP712 {
         TxnRequest memory txn = TxnRequest({
             to: _to,
             value: _value,
-            data: _data,
-            nonce: _nonce
+            data: _data
         });
         // create typed hash
         bytes32 digest = typedDataHash(txn);
@@ -109,8 +102,6 @@ contract MinimalMultisig is EIP712 {
             require(isSigner[signer], "Invalid signer");
         }
 
-        // increment nonce by 1
-        nonce += 1;
         // execute transaction
         (bool success, bytes memory returndata) = txn.to.call{value: txn.value}(_data);
         require(success, "Failed transaction");

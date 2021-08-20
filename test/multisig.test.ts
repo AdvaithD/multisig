@@ -41,14 +41,13 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
         value: ethers.utils.parseEther('10').toString(),
-        data: '0x',
-        nonce: '1'
+        data: '0x'
       }
 
       const originalSigner = await first.getAddress()
       const signature = await signMessage(first, Multisig.address, params)
 
-      const recoveredSigner = await Multisig.recoverSigner(params.to, params.value, params.data, params.nonce, signature)
+      const recoveredSigner = await Multisig.recoverSigner(params.to, params.value, params.data, signature)
       expect(recoveredSigner).to.equal(originalSigner)
     })
   })
@@ -128,7 +127,7 @@ describe('EIP712 Multisig Wallet', () => {
 
       expect(await Multisig.threshold()).to.equal(1)
 
-      await expect(await Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+      await expect(await Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data))
         .to.emit(Multisig, 'Execution')
         .withArgs(ethReceiverAddress, true, '0x')
 
@@ -147,8 +146,7 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: Test.address,
         value: '0',
-        data: ethers.utils.hexlify(calldata),
-        nonce: '1'
+        data: ethers.utils.hexlify(calldata)
       }
 
       // create the array of signatures
@@ -161,7 +159,7 @@ describe('EIP712 Multisig Wallet', () => {
       expect(await Multisig.threshold()).to.equal(2)
 
       // execute transaction from the second signer
-      await expect(await Multisig.connect(second).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+      await expect(await Multisig.connect(second).executeTransaction(signatures, params.to, params.value, params.data))
         .to.emit(Multisig, 'Execution')
         .withArgs(Test.address, true, '0x')
 
@@ -179,8 +177,7 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: Test.address,
         value: '0',
-        data: ethers.utils.hexlify(calldata),
-        nonce: '1'
+        data: ethers.utils.hexlify(calldata)
       }
 
       // create the array of signatures
@@ -193,7 +190,7 @@ describe('EIP712 Multisig Wallet', () => {
       expect(await Multisig.threshold()).to.equal(2)
 
       // execute transaction from the signer
-      await expect(await Multisig.connect(second).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+      await expect(await Multisig.connect(second).executeTransaction(signatures, params.to, params.value, params.data))
         .to.emit(Multisig, 'Execution')
         .withArgs(Test.address, true, '0x')
 
@@ -207,8 +204,7 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: await ethReceiver.getAddress(),
         value: ethers.utils.parseEther('5').toString(),
-        data: '0x',
-        nonce: '1'
+        data: '0x'
       }
 
       // create only two signatures from the first two signers
@@ -220,7 +216,7 @@ describe('EIP712 Multisig Wallet', () => {
       await Multisig.connect(first).addAdditionalOwners(await fourth.getAddress(), 3)
 
       // submit only two signatures
-      await expect(Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+      await expect(Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data))
         .to.be.revertedWith('Invalid number of signatures')
     })
 
@@ -230,8 +226,7 @@ describe('EIP712 Multisig Wallet', () => {
       const params = {
         to: ethers.constants.AddressZero,
         value: ethers.utils.parseEther('5').toString(),
-        data: '0x',
-        nonce: '1'
+        data: '0x'
       }
 
       // create only two signatures from the first two signers
@@ -241,7 +236,7 @@ describe('EIP712 Multisig Wallet', () => {
       await Multisig.connect(first).addAdditionalOwners(await second.getAddress(), 1)
 
       // submit only two signatures
-      await expect(Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data, params.nonce))
+      await expect(Multisig.connect(first).executeTransaction(signatures, params.to, params.value, params.data))
         .to.be.revertedWith('Cannot send to zero address.')
     })
   })

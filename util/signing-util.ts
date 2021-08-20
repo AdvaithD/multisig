@@ -31,10 +31,6 @@ const TYPES = {
     {
       name: 'data',
       type: 'bytes'
-    },
-    {
-      name: 'nonce',
-      type: 'uint256'
     }
   ]
 }
@@ -55,8 +51,7 @@ const EIP712 = (contractAddress: string, chainId = 1, params: Record<any, unknow
     message: {
       to: params.to,
       value: params.value,
-      data: params.data,
-      nonce: params.nonce
+      data: params.data
     },
     primaryType: 'TxnRequest'
   }
